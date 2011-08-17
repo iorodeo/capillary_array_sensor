@@ -8,6 +8,11 @@ class ArrayReader(serial.Serial):
         super(ArrayReader,self).__init__(**kwargs)
         time.sleep(2.0)
 
+    def getFakeData(self):
+        fakeData = 800*pylab.ones((768,))
+        fakeData[:200] = 0.0*fakeData[:200]
+        return fakeData
+
     def getData(self):
         self.write('x\n')
         line_list = []

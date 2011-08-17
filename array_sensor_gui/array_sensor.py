@@ -10,8 +10,11 @@ from PyQt4 import QtGui
 from array_sensor_ui import Ui_ArraySensorMainWindow
 from array_reader import ArrayReader
 
+FAKE_DATA_DEBUG = False
+
 # Conversions
-MM2NL = 5.0e3/54.8
+#MM2NL = 5.0e3/54.8
+DEFAULT_CALIBRATION = 5.0e3/54.8
 PIXEL2MM = 63.5e-3
 ADC2VOLTS = 5.0/1024.0
 
@@ -26,7 +29,8 @@ NUM_BACKGROUND_AVG = 5
 BASELINE_PIXEL_LEVEL = 1.0
 DEFAULT_THRESHOLD = 1.5
 DETECTION_WINDOW = 15
-SENSOR_RANGE_NL = NUM_PIXEL*PIXEL2MM*MM2NL
+#SENSOR_RANGE_NL = NUM_PIXEL*PIXEL2MM*MM2NL
+#SENSOR_RANGE_NL = NUM_PIXEL*PIXEL2MM*DEFAULT_CALIBRATION
 
 class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
 
@@ -54,6 +58,7 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         self.startLogPushButton.clicked.connect(self.startLog_Callback)
         self.debugRadioButton.clicked.connect(self.debug_Callback)
         self.stopLogPushButton.clicked.connect(self.stopLog_Callback)
+        self.calibrationLineEdit.editingFinished.connect(self.calibrationLineEdit_Callback)
 
     def setupTimer(self):
         """
@@ -109,6 +114,11 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         else:
             self.port = 'com1'
         self.serialPortLineEdit.setText(self.port)
+
+        # Set capillary calibration
+        self.calibration = DEFAULT_CALIBRATION 
+        self.calibrationLineEdit.setText('%1.3f'%(self.calibration,))
+
 
         #  Initialize plot
         self.pixelPlot, = self.mpl.canvas.ax.plot([],[],linewidth=2)
@@ -201,7 +211,12 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
 
         # Get time and sensor data
         currentTime  = time.time()
-        data = self.sensor.getData()
+
+        if FAKE_DATA_DEBUG: 
+            data = self.sensor.getFakeData()
+        else:
+            data = self.sensor.getData()
+
         if data is None:
             return 
 
@@ -247,7 +262,8 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         if rval:
             ind, value = rval
             pixel_pos = ind*PIXEL2MM
-            fluid_level = SENSOR_RANGE_NL - pixel_pos*MM2NL
+            #fluid_level = SENSOR_RANGE_NL - pixel_pos*MM2NL
+            fluid_level = self.getSensorRange() - pixel_pos*self.calibration
             self.levelLabel.setText('Fluid Level: %1.0f(nl)'%(fluid_level,))
             self.levelPlot.set_visible(True)
             self.levelPlot.set_data([pixel_pos],[value])
@@ -326,6 +342,20 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
             QtGui.QMessageBox.critical(self,'Error', 'Input must be a float, %s'%(e,))
             return
         self.thresholdLineEdit.setText('%1.2f'%(self.threshold,))
+
+    def calibrationLineEdit_Callback(self):
+        """
+        Set capillary calibration
+        """
+        calibrationStr = str(self.calibrationLineEdit.text())
+        try:
+            calibration = float(calibrationStr)
+            self.calibration = calibration
+        except ValueError, e:
+            QtGui.QMessageBox.critical(self,'Error', 'Input must be a float, %s'%(e,))
+            return
+        self.calibrationLineEdit.setText('%1.3f'%(self.calibration,))
+
 
     def debug_Callback(self):
         """
@@ -428,6 +458,10 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         self.logFileFid = None
         self.logging = False
         self.enableDisableWidgets()
+
+    def getSensorRange(self):
+        return NUM_PIXEL*PIXEL2MM*self.calibration
+        
 
     def main(self):
         self.show()
