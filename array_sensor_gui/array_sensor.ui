@@ -240,7 +240,7 @@
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Calibration (nL/mm)</string>
+          <string>Calibration (nl/mm)</string>
          </property>
         </widget>
        </item>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'array_sensor.ui'
 #
-# Created: Wed Aug 17 13:58:57 2011
+# Created: Wed Aug 17 14:08:24 2011
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -214,7 +214,7 @@ class Ui_ArraySensorMainWindow(object):
         self.stopPushButton.setToolTip(QtGui.QApplication.translate("ArraySensorMainWindow", "stop acquisition form sensor", None, QtGui.QApplication.UnicodeUTF8))
         self.stopPushButton.setText(QtGui.QApplication.translate("ArraySensorMainWindow", "       Stop        ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("ArraySensorMainWindow", "Threshold", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("ArraySensorMainWindow", "Calibration (nL/mm)", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("ArraySensorMainWindow", "Calibration (nl/mm)", None, QtGui.QApplication.UnicodeUTF8))
         self.takeBackgroundPushButton.setToolTip(QtGui.QApplication.translate("ArraySensorMainWindow", "take background reading of capillary for equalization", None, QtGui.QApplication.UnicodeUTF8))
         self.takeBackgroundPushButton.setText(QtGui.QApplication.translate("ArraySensorMainWindow", "Take Background", None, QtGui.QApplication.UnicodeUTF8))
         self.loadBackgroundPushButton.setToolTip(QtGui.QApplication.translate("ArraySensorMainWindow", "load background reading from file", None, QtGui.QApplication.UnicodeUTF8))
