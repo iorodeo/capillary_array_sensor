@@ -45,20 +45,38 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         """
         Connect pushbuttons to their actions
         """
-        self.startPushButton.pressed.connect(self.startPressed_Callback)
-        self.startPushButton.clicked.connect(self.startClicked_Callback)
-        self.stopPushButton.clicked.connect(self.stopClicked_Callback)
-        self.serialPortLineEdit.editingFinished.connect(self.serialPortLineEdit_Callback)
-        self.thresholdLineEdit.editingFinished.connect(self.thresholdLineEdit_Callback)
-        self.takeBackgroundPushButton.clicked.connect(self.takeBackground_Callback)
-        self.saveBackgroundPushButton.clicked.connect(self.saveBackground_Callback)
-        self.loadBackgroundPushButton.clicked.connect(self.loadBackground_Callback)
-        self.deleteBackgroundPushButton.clicked.connect(self.deleteBackground_Callback)
-        self.setLogPushButton.clicked.connect(self.setLog_Callback)
-        self.startLogPushButton.clicked.connect(self.startLog_Callback)
-        self.debugRadioButton.clicked.connect(self.debug_Callback)
-        self.stopLogPushButton.clicked.connect(self.stopLog_Callback)
-        self.calibrationLineEdit.editingFinished.connect(self.calibrationLineEdit_Callback)
+        try:
+            # New style signals and slots
+            self.startPushButton.pressed.connect(self.startPressed_Callback)
+            self.startPushButton.clicked.connect(self.startClicked_Callback)
+            self.stopPushButton.clicked.connect(self.stopClicked_Callback)
+            self.serialPortLineEdit.editingFinished.connect(self.serialPortLineEdit_Callback)
+            self.thresholdLineEdit.editingFinished.connect(self.thresholdLineEdit_Callback)
+            self.takeBackgroundPushButton.clicked.connect(self.takeBackground_Callback)
+            self.saveBackgroundPushButton.clicked.connect(self.saveBackground_Callback)
+            self.loadBackgroundPushButton.clicked.connect(self.loadBackground_Callback)
+            self.deleteBackgroundPushButton.clicked.connect(self.deleteBackground_Callback)
+            self.setLogPushButton.clicked.connect(self.setLog_Callback)
+            self.startLogPushButton.clicked.connect(self.startLog_Callback)
+            self.debugRadioButton.clicked.connect(self.debug_Callback)
+            self.stopLogPushButton.clicked.connect(self.stopLog_Callback)
+            self.calibrationLineEdit.editingFinished.connect(self.calibrationLineEdit_Callback)
+        except AttributeError:
+            # Didn't work try old style signals and slots
+            self.connect(self.startPushButton,QtCore.SIGNAL("pressed()"), self.startPressed_Callback)
+            self.connect(self.startPushButton, QtCore.SIGNAL("clicked()"), self.startClicked_Callback)
+            self.connect(self.stopPushButton, QtCore.SIGNAL("clicked()"), self.stopClicked_Callback)
+            self.connect(self.serialPortLineEdit, QtCore.SIGNAL("edittingFinished()"), self.serialPortLineEdit_Callback)
+            self.connect(self.thresholdLineEdit,QtCore.SIGNAL("edittingFinished()"), self.thresholdLineEdit_Callback)
+            self.connect(self.takeBackgroundPushButton, QtCore.SIGNAL("clicked()"), self.takeBackground_Callback)
+            self.connect(self.saveBackgroundPushButton, QtCore.SIGNAL("clicked()"), self.saveBackground_Callback)
+            self.connect(self.loadBackgroundPushButton, QtCore.SIGNAL("clicked()"), self.loadBackground_Callback)
+            self.connect(self.deleteBackgroundPushButton, QtCore.SIGNAL("clicked()"), self.deleteBackground_Callback)
+            self.connect(self.setLogPushButton, QtCore.SIGNAL("clicked()"), self.setLog_Callback)
+            self.connect(self.startLogPushButton, QtCore.SIGNAL("clicked()"), self.startLog_Callback)
+            self.connect(self.debugRadioButton, QtCore.SIGNAL("clicked()"), self.debug_Callback)
+            self.connect(self.stopLogPushButton, QtCore.SIGNAL("clicked()"), self.stopLog_Callback)
+            self.connect(self.calibrationLineEdit, QtCore.SIGNAL("edittingFinished()"), self.calibrationLineEdit_Callback)
 
     def setupTimer(self):
         """
@@ -66,7 +84,10 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         """
         self.timer = QtCore.QTimer()
         self.timer.setInterval(TIMER_INTERVAL_MS)
-        self.timer.timeout.connect(self.timer_Callback)
+        try:
+            self.timer.timeout.connect(self.timer_Callback)
+        except AttributeError:
+            self.connect(self.timer,QtCore.SIGNAL("timeout()"),self.timer_Callback)
 
     def initialize(self):
 

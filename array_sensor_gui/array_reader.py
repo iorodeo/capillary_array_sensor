@@ -2,6 +2,8 @@ import time
 import serial
 import matplotlib.pylab as pylab
 
+ARRAY_SZ = 768
+
 class ArrayReader(serial.Serial):
 
     def __init__(self,**kwargs):
@@ -9,12 +11,15 @@ class ArrayReader(serial.Serial):
         time.sleep(2.0)
 
     def getFakeData(self):
-        fakeData = 800*pylab.ones((768,))
+        fakeData = 800*pylab.ones((ARRAY_SZ,))
         fakeData[:200] = 0.0*fakeData[:200]
         return fakeData
 
     def getData(self):
         self.write('x\n')
+        # Wait until all data has arrived.
+        while self.inWaiting() < ARRAY_SZ*2: # 2 bytes per data point
+            time.sleep(0.05)
         line_list = []
         data_ok = True
         for line in self.readlines():
