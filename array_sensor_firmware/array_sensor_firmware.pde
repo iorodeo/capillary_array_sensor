@@ -1,6 +1,8 @@
 #include <Streaming.h>
 #include <avr/pgmspace.h>
 
+#define NEW_STYLE_STREAM
+
 #define SI A0
 #define CLK A1
 #define AIN A6
@@ -45,9 +47,14 @@ void loop() {
     }
 }
 
-
 void sendArray(uint16_t *buffer) {
     uint16_t cnt = 0;
+
+#ifdef NEW_STYLE_STREAM
+    for (int i=0; i<768; i++) {
+        Serial << _BYTE(lowByte(buffer[i])) << _BYTE(highByte(buffer[i])); 
+    }
+#else
     while (cnt < 768) {
         for (int i=0;i<30;i++) { 
             Serial << _DEC(buffer[cnt]) << " ";
@@ -57,8 +64,8 @@ void sendArray(uint16_t *buffer) {
         Serial << endl;
     }
     Serial << endl;
+#endif
 }
-
 
 void readArray(uint16_t *buffer) {
 

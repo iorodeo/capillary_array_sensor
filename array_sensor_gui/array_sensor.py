@@ -24,13 +24,17 @@ ADC_INT_MAX = 1024
 ADC_VOLTS_MAX = 5.0
 DEFAULT_LOG_FILE = 'array_sensor_data.txt'
 DEFAULT_BACKGROUND_FILE = 'background_data.txt'
-TIMER_INTERVAL_MS =  1000 
 NUM_BACKGROUND_AVG = 5
 BASELINE_PIXEL_LEVEL = 1.0
 DEFAULT_THRESHOLD = 1.5
 DETECTION_WINDOW = 15
-#SENSOR_RANGE_NL = NUM_PIXEL*PIXEL2MM*MM2NL
-#SENSOR_RANGE_NL = NUM_PIXEL*PIXEL2MM*DEFAULT_CALIBRATION
+STREAM_STYLE = 'new'
+
+# Select timer interval based on new of old streaming style
+if STREAM_STYLE == 'new':
+    TIMER_INTERVAL_MS =  500 
+else:
+    TIMER_INTERVAL_MS =  1000 
 
 class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
 
@@ -229,7 +233,6 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         """
         Grab data from sensor, display, find fluid level and write to log file.
         """
-
         # Get time and sensor data
         currentTime  = time.time()
 
@@ -283,7 +286,6 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         if rval:
             ind, value = rval
             pixel_pos = ind*PIXEL2MM
-            #fluid_level = SENSOR_RANGE_NL - pixel_pos*MM2NL
             fluid_level = self.getSensorRange() - pixel_pos*self.calibration
             self.levelLabel.setText('Fluid Level: %1.0f(nl)'%(fluid_level,))
             self.levelPlot.set_visible(True)
@@ -310,7 +312,12 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         """
         # Try to open serial port
         try:
-            self.sensor = ArrayReader(port=self.port,baudrate=115200,timeout=0.05)
+            self.sensor = ArrayReader(
+                    port=self.port,
+                    baudrate=115200,
+                    timeout=0.05,
+                    stream_style=STREAM_STYLE
+                    )
         except serial.serialutil.SerialException, e:
             QtGui.QMessageBox.critical(self,'Error', '%s'%(e,))
             self.sensor = None
