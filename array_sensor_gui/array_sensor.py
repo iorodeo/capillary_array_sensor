@@ -98,6 +98,7 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         # Set initial state
         self.running = False
         self.logging = False
+        self.isFirstLogging = False
         self.haveBackground = False
         self.debugLogging = False
 
@@ -233,9 +234,7 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
         """
         Grab data from sensor, display, find fluid level and write to log file.
         """
-        # Get time and sensor data
-        currentTime  = time.time()
-
+        # Get data from sensor
         if FAKE_DATA_DEBUG: 
             data = self.sensor.getFakeData()
         else:
@@ -243,10 +242,6 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
 
         if data is None:
             return 
-
-        # Update time label
-        dt = currentTime - self.startTime
-        self.timeLabel.setText('Time: %1.0f (s)'%(dt,))
 
         # Check shape of data
         if data.shape[0] != NUM_PIXEL:
@@ -291,14 +286,27 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
             self.levelPlot.set_visible(True)
             self.levelPlot.set_data([pixel_pos],[value])
         else:
+            fluid_level = None
             self.levelPlot.set_visible(False)
             self.levelLabel.setText('Fluid Level: ________')
 
         self.mpl.canvas.fig.canvas.draw()
 
+        # Reset start time if is first log data point 
+        if self.isFirstLogging:
+            self.startTime = time.time()
+            self.isFirstLogging = False
+
+        # Get time and update label 
+        currentTime  = time.time()
+        dt = currentTime - self.startTime
+        self.timeLabel.setText('Time: %1.0f (s)'%(dt,))
+
         # Update log file
         if self.logging:
-            self.logFileFid.write('%f %f\n'%(dt,fluid_level))
+            if fluid_level is not None:
+                self.logFileFid.write('%f %f\n'%(dt,fluid_level))
+                self.logFileFid.flush()
 
         #time_end = time.time()
         #print 'dt = ', time_end - currentTime 
@@ -474,8 +482,7 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_ArraySensorMainWindow):
             return
         
         self.logging = True
-        self.startTime = time.time()
-        self.timeLabel.setText('Time: %1.0f (s)'%(0.0,))
+        self.isFirstLogging = True
         self.enableDisableWidgets()
 
     def stopLog_Callback(self):
